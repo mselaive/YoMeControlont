@@ -17,7 +17,11 @@
 */
 
 // reactstrap components
-import { Card, CardBody, CardTitle, Container, Row, Col } from "reactstrap";
+import { Card, CardBody, CardTitle, Container, Row, Col, CardText, CardImg, Button } from "reactstrap";
+import cardImage from "../../assets/img/brand/MaleTabRight.png";
+import cardImage2 from "../../assets/img/brand/top-banner.png";
+import cardImage3 from "../../assets/img/brand/try1.png";
+
 
 const Header = () => {
   return (
@@ -27,107 +31,78 @@ const Header = () => {
           <div className="header-body">
             {/* Card stats */}
             <Row>
+
+            <Col lg="6" xl="4">
+                <Card className="card-stats mb-xl-0"> 
+                  <CardImg
+                      alt="..."
+                      src={cardImage2}
+                      top
+                          />
+                  <CardBody>
+                    <CardTitle>Encuentra pack de exámenes por categoria</CardTitle>
+                    <CardText className="pt-3 pb-4">
+                    Hemos diseñado diferentes packs de exámenes útiles para detectar precozmente las enfermedades más comunes de la población, elige entre ellos el que más se acomode a tus necesidades.
+                    </CardText>
+                    <Button
+                      color="primary"
+                      href="#pablo"
+                      onClick={e => e.preventDefault()}
+
+                    >
+                      Pedir Examenes
+                    </Button>
+                   </CardBody>
+                </Card>
+              </Col>
               
-              <Col lg="6" xl="3">
-                <Card className="card-stats mb-4 mb-xl-0">
+              <Col lg="6" xl="4">
+                <Card className="card-stats mb-4"> 
+                  <CardImg
+                      alt="..."
+                      src={cardImage}
+                      top
+                          />
                   <CardBody>
-                    <Row>
-                      <div className="col">
-                        <CardTitle
-                          tag="h5"
-                          className="text-uppercase font-weight-bold h2 mb-0"
-                        >
-                          Encuentra los exámenes que necesitas
-                        </CardTitle>
-                        <span className="h4 font-weight-bold mb-0">Te facilitamos el acceso a ordenes médicas con exámenes de laboratorio, imágenes y procedimientos que te permiten detectar precozmente patologías como diabetes, hipertensión, dislipidemia y algunos de los cánceres más frecuentes en la población.</span>
-                      </div>
-                      <Col className="col-auto">
-                        <div className="icon icon-shape bg-warning text-white rounded-circle shadow">
-                          <i className="fas fa-chart-pie" />
-                        </div>
-                      </Col>
-                    </Row>
-
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col lg="6" xl="3">
-                <Card className="card-stats mb-4 mb-xl-0">
-                  <CardBody>
-                    <Row>
-                      <div className="col">
-                        <CardTitle
-                          tag="h5"
-                          className="text-uppercase font-weight-bold h3 mb-0"
-                        >
-                          Descubre el pack recomendado para tu perfil médico
-                        </CardTitle>
-                        <span className="h4 font-weight-bold mb-0">Tras una breve encuesta de salud podremos personalizar tu orden médica, con los exámenes de laboratorio, imagen y procedimientos médicos recomendados especialmente para ti.</span>
-                      </div>
-                      <Col className="col-auto">
-                        <div className="icon icon-shape bg-yellow text-white rounded-circle shadow">
-                          <i className="fas fa-users" />
-                        </div>
-                      </Col>
-                    </Row>
-                    <p className="mt-3 mb-0 text-muted text-sm">
-                      <span className="text-nowrap">¡Pide tu certidicado ahora!</span>
-                    </p>
-                  </CardBody>
+                    <CardTitle>Para vivir más y mejor, Chequea tu corazón</CardTitle>
+                    <CardText>
+                    Las enfermedades cardiovasculares son una las principales causas de muerte en Chile, representando más de una cuarta parte de todos los fallecimientos registrados cada año.
+                    Durante todo agosto, te daremos acceso gratuito a la orden médica con los exámenes de laboratorio y procedimientos médicos necesarios para que te realices un chequeo cardiovascular preventivo básico. Hazlo por ti y tu familia.
+                    </CardText>
+                    <Button
+                      color="primary"
+                      href="#pablo"
+                      onClick={e => e.preventDefault()}
+                    >
+                      Pedir Examenes
+                    </Button>
+                   </CardBody>
                 </Card>
               </Col>
 
-              <Col lg="6" xl="3">
-                <Card className="card-stats mb-4 mb-xl-0">
+               
+              <Col lg="6" xl="4">
+                <Card className="card-stats mb-4 "> 
+                  <CardImg
+                      alt="..."
+                      src={cardImage3}
+                      top
+                          />
                   <CardBody>
-                    <Row>
-                      <div className="col">
-                        <CardTitle
-                          tag="h5"
-                          className="text-uppercase h2 font-weight-bold mb-0"
-                        >
-                          Yo me controlo, para vivir más y mejor
-                        </CardTitle>
-                        <span className="h5 font-weight-bold mb-0">Startup chilena que se dedica a revolucionar la atención médica personal y familiar a través de soluciones digitales avanzadas. Nuestra misión es acortar las brechas en la atención médica y evolucionar la medicina preventiva hacia la medicina predictiva.</span>
-                      </div>
-                      <Col className="col-auto">
-                        <div className="icon icon-shape bg-info text-white rounded-circle shadow">
-                          <i className="fas fa-percent" />
-                        </div>
-                      </Col>
-                    </Row>
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col lg="6" xl="3">
-                <Card className="card-stats mb-4 mb-xl-0">
-                  <CardBody>
-                    <Row>
-                      <div className="col">
-                        <CardTitle
-                          tag="h5"
-                          className="text-uppercase font-weight-bold h2 mb-0"
-                        >
-                          Certificados Emitidos
-                        </CardTitle>
-                        <span className="h2 font-weight-bold mb-0">
-                          350,897
-                        </span>
-                      
-                      </div>
-                      <Col className="col-auto">
-                        <div className="icon icon-shape bg-danger text-white rounded-circle shadow">
-                          <i className="fas fa-chart-bar" />
-                        </div>
-                      </Col>
-                    </Row>
-                    <p className="mt-3 mb-0 text-muted text-sm">
-                      <span className="text-success mr-2">
-                        <i className="fa fa-arrow-up" /> 3.48%
-                      </span>{" "}
-                      <span className="text-nowrap">Desde el ultimo mes</span>
-                    </p>
-                  </CardBody>
+                    <CardTitle>¿Cuál es la edad de tu corazón?</CardTitle>
+                    <CardText>
+                    La edad vascular te da una idea de la salud de tu corazón. 
+                    Para que puedas conocerla hemos habilitado una calculadora para averiguarlo en cuestión de minutos.
+                    Funciona comparando tu edad real con tu edad cardíaca haciéndote preguntas sobre tu salud
+                    </CardText>
+                    <Button
+                      color="primary"
+                      href="#pablo"
+                      onClick={e => e.preventDefault()}
+                    >
+                      Pedir Examenes
+                    </Button>
+                   </CardBody>
                 </Card>
               </Col>
             </Row>
