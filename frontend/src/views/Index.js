@@ -7,6 +7,7 @@ import Chart from "chart.js";
 // react plugin used to create charts
 import { Line, Bar } from "react-chartjs-2";
 // reactstrap components
+import axios from 'axios';
 import {
   Button,
   Card,
@@ -20,6 +21,11 @@ import {
   Container,
   Row,
   Col,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Badge,
 } from "reactstrap";
 
 // core components
@@ -33,7 +39,156 @@ import {
 import Header from "components/Headers/Header.js";
 
 const Index = (props) => {
-  
+  const [selectedCheckbox, setSelectedCheckbox] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    rut: '',
+    age: '',
+    email: '',
+    gender: ''
+  });
+  const [examen, setExamen] = useState({
+    patient_id: '',
+    exams: '',
+    
+  });
+  const examenes = {
+    customCheck1: {
+      nombre: "Detección Cancer de Próstata",
+      descripcion: "Examen para detectar el cáncer de próstata en sus primeras etapas.",
+      exams: ['YMC095', 'YMC096', 'YMC097', 'YMC098', 'YMC099', 'YMC100']
+    },
+    customCheck2: {
+      nombre: "Chequeo Preventivo",
+      descripcion: "Chequeo general para prevenir enfermedades comunes.",
+      exams: ['YMC101', 'YMC102', 'YMC103', 'YMC001', 'YMC002', 'YMC003']
+    },
+    customCheck3: {
+      nombre: "Chequeo ETS y Salud Sexual",
+      descripcion: "Examen para detectar enfermedades de transmisión sexual y evaluar la salud sexual.",
+      exams: ['YMC004', 'YMC005', 'YMC006', 'YMC007', 'YMC008', 'YMC009']
+    },
+    customCheck4: {
+      nombre: "Chequeo de Alergias",
+      descripcion: "Examen para identificar alergias comunes.",
+      exams: ['YMC026', 'YMC095', 'YMC096', 'YMC097', 'YMC098', 'YMC099']
+    },
+    customCheck5: {
+      nombre: "Exámenes Preocupacionales y Evaluación Laboral",
+      descripcion: "Evaluación médica para determinar la aptitud laboral.",
+      exams: ['YMC100', 'YMC101', 'YMC102', 'YMC103', 'YMC001', 'YMC002']
+    },
+    customCheck6: {
+      nombre: "Detección de Diabetes y Resistencia a la Insulina",
+      descripcion: "Examen para detectar diabetes y resistencia a la insulina.",
+      exams: ['YMC003', 'YMC004', 'YMC005', 'YMC006', 'YMC007', 'YMC008']
+    },
+    customCheck7: {
+      nombre: "Detección Cancer de Mama",
+      descripcion: "Examen para detectar el cáncer de mama en sus primeras etapas.",
+      exams: ['YMC009', 'YMC026', 'YMC095', 'YMC096', 'YMC097', 'YMC098']
+    },
+    customCheck8: {
+      nombre: "Chequeo General de Salud",
+      descripcion: "Chequeo general para evaluar el estado de salud.",
+      exams: ['YMC099', 'YMC100', 'YMC101', 'YMC102', 'YMC103', 'YMC001']
+    },
+    customCheck9: {
+      nombre: "Pérdida de peso involuntaria",
+      descripcion: "Evaluación para determinar las causas de la pérdida de peso involuntaria.",
+      exams: ['YMC002', 'YMC003', 'YMC004', 'YMC005', 'YMC006', 'YMC007']
+    },
+    customCheck10: {
+      nombre: "Hipertensión y Diabetes",
+      descripcion: "Examen para detectar hipertensión y diabetes.",
+      exams: ['YMC008', 'YMC009', 'YMC026', 'YMC095', 'YMC096', 'YMC097']
+    },
+    customCheck11: {
+      nombre: "Chequeo Capilar",
+      descripcion: "Evaluación de la salud capilar.",
+      exams: ['YMC098', 'YMC099', 'YMC100', 'YMC101', 'YMC102', 'YMC103']
+    },
+    customCheck12: {
+      nombre: "Exámenes de orina y perfil renal",
+      descripcion: "Examen para evaluar la función renal a través de análisis de orina.",
+      exams: ['YMC001', 'YMC002', 'YMC003', 'YMC004', 'YMC005', 'YMC006']
+    }
+  };
+   
+  const handleCheckboxChange = (event) => {
+    const { id } = event.target;
+    setSelectedCheckbox(id);
+    const selectedExam = examenes[id];
+    if (selectedExam) {
+      setExamen({
+        exams: selectedExam.exams
+      });
+    }
+    
+  };
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+  const handleRutChange = (event) => {
+    const { value } = event.target;
+    const formattedRut = formatRut(value);
+    setFormData({
+      ...formData,
+      rut: formattedRut
+    });
+  };
+
+  const formatRut = (rut) => {
+    // Elimina cualquier carácter que no sea un número o una 'k'
+    rut = rut.replace(/[^0-9kK]/g, '');
+
+    // Si el RUT tiene más de un dígito, añade el guion antes de los dos últimos caracteres
+    if (rut.length > 1) {
+      rut = rut.slice(0, -1) + '-' + rut.slice(-1);
+    }
+
+    return rut;
+  };
+ 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setShowForm(true);
+  };
+  const handleSubmit2 = (event) => {
+    event.preventDefault();
+    setShowForm(false);
+  };
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    // Aquí puedes manejar el almacenamiento de la información del formulario
+    console.log('Información del formulario:', formData);
+    
+    event.preventDefault();
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/patient', formData);
+      console.log('Paciente creado:', response.data);
+      console.log(response.data._id);
+     
+      const examResponse = await axios.post('http://127.0.0.1:8000/exam', {
+        patient_id: response.data._id,
+        ...examen
+        
+      });
+      console.log('Examen creado:', examResponse.data);
+      
+      // Aquí puedes manejar la respuesta, como mostrar un mensaje de éxito o redirigir al usuario
+    } catch (error) {
+      console.error('Error al crear el paciente:', error);
+      // Aquí puedes manejar el error, como mostrar un mensaje de error al usuario
+    }
+    
+  };
+
   if (window.Chart) {
     parseOptions(Chart, chartOptions());
   }
@@ -46,168 +201,290 @@ const Index = (props) => {
     <>
       <Header />
       {/* Page content */}
-
-      <Row className=" mt--6 d-flex justify-content-center align-items-center ">
-        <Col lg="6" md="10"> 
-
+      {!showForm && (
+        <Row className="mt--6 d-flex justify-content-center align-items-center">
+          <Col lg="6" md="10">
             <Card className="bg-secondary shadow border-0">
-                <CardBody className="px-lg-5 py-lg-5">
-
+              <CardBody className="px-lg-5 py-lg-5">
                 <Col>
-
-                    <div className="text-center text-muted mb-4">
-                        <div className="text-center font-weight-bold h1 mb-4">
-                            <big>{'Formulario'}</big>
-                        </div>
+                  <div className="text-center text-muted mb-4">
+                    <div className="text-center font-weight-bold h1 mb-4">
+                      <big>{'Exámenes'}</big>
                     </div>
+                  </div>
 
-                    <Row>
-                      <Col className="col-sm">
-
-                        <div className="custom-control custom-checkbox mb-3">
-                          <input
-                            className="custom-control-input"
-                            id="customCheck1"
-                            type="checkbox"
-                          />
-                          <label className="custom-control-label" htmlFor="customCheck1">
-                            Diabetes
-                          </label>
-                        </div>
-                        <div className="custom-control custom-checkbox mb-3">
-                          <input
-                            className="custom-control-input"
-                            id="customCheck2"
-                            type="checkbox"
-                          />
-                          <label className="custom-control-label" htmlFor="customCheck2">
-                            Dolor de Cabeza
-                          </label>
-                        </div>
-                        <div className="custom-control custom-checkbox mb-3">
-                          <input
-                            className="custom-control-input"
-                            id="customCheck3"
-                            type="checkbox"
-                          />
-                          <label className="custom-control-label" htmlFor="customCheck3">
-                            Presion Alta
-                          </label>
-                        </div>
-                        <div className="custom-control custom-checkbox mb-3">
-                          <input
-                            className="custom-control-input"
-                            id="customCheck4"
-                            type="checkbox"
-                          />
-                          <label className="custom-control-label" htmlFor="customCheck4">
-                            Temperatura Alta o fiebre
-                          </label>
-                        </div>
-                      </Col>
-
-                      <Col className="col-sm">
-
-                        <div className="custom-control custom-checkbox mb-3">
-                          <input
-                            className="custom-control-input"
-                            id="customCheck1"
-                            type="checkbox"
-                          />
-                          <label className="custom-control-label" htmlFor="customCheck1">
-                          Dolor en el pecho
-                          </label>
-                        </div>
-                        <div className="custom-control custom-checkbox mb-3">
-                          <input
-                            className="custom-control-input"
-                            id="customCheck2"
-                            type="checkbox"
-                          />
-                          <label className="custom-control-label" htmlFor="customCheck2">
-                          Dificultad para respirar
-                          </label>
-                        </div>
-                        <div className="custom-control custom-checkbox mb-3">
-                          <input
-                            className="custom-control-input"
-                            id="customCheck3"
-                            type="checkbox"
-                          />
-                          <label className="custom-control-label" htmlFor="customCheck3">
-                          Dolor muscular o articular
-                          </label>
-                        </div>
-                        <div className="custom-control custom-checkbox mb-3">
-                          <input
-                            className="custom-control-input"
-                            id="customCheck4"
-                            type="checkbox"
-                          />
-                          <label className="custom-control-label" htmlFor="customCheck4">
-                          Fatiga o cansancio extremo
-                          </label>
-                        </div>
-                        </Col>
-                        <Col className="col-sm">
-
-                          <div className="custom-control custom-checkbox mb-3">
-                            <input
-                              className="custom-control-input"
-                              id="customCheck1"
-                              type="checkbox"
-                            />
-                            <label className="custom-control-label" htmlFor="customCheck1">
-                            Pérdida de peso involuntaria
-                            </label>
-                          </div>
-                          <div className="custom-control custom-checkbox mb-3">
-                            <input
-                              className="custom-control-input"
-                              id="customCheck2"
-                              type="checkbox"
-                            />
-                            <label className="custom-control-label" htmlFor="customCheck2">
-                            Náuseas o vómitos
-                            </label>
-                          </div>
-                          <div className="custom-control custom-checkbox mb-3">
-                            <input
-                              className="custom-control-input"
-                              id="customCheck3"
-                              type="checkbox"
-                            />
-                            <label className="custom-control-label" htmlFor="customCheck3">
-                            Diarrea o estreñimiento
-                            </label>
-                          </div>
-                          <div className="custom-control custom-checkbox mb-3">
-                            <input
-                              className="custom-control-input"
-                              id="customCheck4"
-                              type="checkbox"
-                            />
-                            <label className="custom-control-label" htmlFor="customCheck4">
-                            Erupciones en la piel o urticaria
-                            </label>
-                          </div>
-                          </Col>
-                    </Row>
-
-
-                    <div className="text-center" >
-                                    <Button className="my-4" color="primary" type="submit" >
-                                    {("Generar Receta")}
-                                    </Button>
-                    </div>
-                    
+                  <Row>
+                    <Col sm="4">
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck1"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck1"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck1">
+                          Detección Cancer de Próstata
+                        </label>
+                      </div>
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck2"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck2"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck2">
+                          Chequeo Preventivo
+                        </label>
+                      </div>
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck3"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck3"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck3">
+                          Chequeo ETS y Salud Sexual
+                        </label>
+                      </div>
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck4"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck4"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck4">
+                          Chequeo de Alergias
+                        </label>
+                      </div>
                     </Col>
 
-                </CardBody>
-            </Card>
-        </Col>
+                    <Col sm="4">
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck5"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck5"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck5">
+                          Exámenes Preocupacionales y Evaluación Laboral
+                        </label>
+                      </div>
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck6"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck6"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck6">
+                          Detección de Diabetes y Resistencia a la Insulina
+                        </label>
+                      </div>
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck7"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck7"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck7">
+                          Detección Cancer de Mama
+                        </label>
+                      </div>
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck8"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck8"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck8">
+                          Chequeo General de Salud
+                        </label>
+                      </div>
+                    </Col>
 
-      </Row>
+                    <Col sm="4">
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck9"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck9"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck9">
+                          Pérdida de peso involuntaria
+                        </label>
+                      </div>
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck10"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck10"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck10">
+                          Hipertensión y Diabetes
+                        </label>
+                      </div>
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck11"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck11"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck11">
+                          Chequeo Capilar
+                        </label>
+                      </div>
+                      <div className="custom-control custom-checkbox mb-3">
+                        <input
+                          className="custom-control-input"
+                          id="customCheck12"
+                          type="checkbox"
+                          checked={selectedCheckbox === "customCheck12"}
+                          onChange={handleCheckboxChange}
+                        />
+                        <label className="custom-control-label" htmlFor="customCheck12">
+                          Exámenes de orina y perfil renal
+                        </label>
+                      </div>
+                    </Col>
+                  </Row>
+
+                      <div className="text-center" >
+                                      <Button className="my-4" color="primary" type="submit" onClick={handleSubmit}>
+                                      {("Generar Receta")}
+                                      </Button>
+                      </div>
+                      
+                    </Col>
+
+                  </CardBody>
+              </Card>
+          </Col>
+
+        </Row>
+        )}
+
+      {showForm && (
+         <Row className="mt-4 d-flex justify-content-center align-items-start">
+         <Col lg="3" md="5">
+           <Card className="bg-secondary shadow border-0 ">
+             <CardBody className="px-lg-5 py-lg-4">
+             <h1>
+              <Badge color="primary" className="d-flex align-items-center justify-content-center">
+                <i className="ni ni-ambulance"></i>
+                <span className="ml-2">Generar Orden Médica</span>
+              </Badge>
+            </h1>
+             <h2><big>{examenes[selectedCheckbox].nombre}</big></h2>
+             <p>{examenes[selectedCheckbox].descripcion}</p>
+             </CardBody>
+           </Card>
+         </Col>
+         <Col lg="6" md="10">
+           <Card className="bg-secondary shadow border-0">
+             <CardBody className="px-lg-5 py-lg-4">
+             <h1>
+             <div className="d-flex justify-content-left py-lg-3">
+              <Badge color="primary" className="d-flex align-items-center justify-content-center">
+                <i className="ni ni-circle-08"></i>
+                <span className="ml-2 ">Datos del Paciente</span>
+              </Badge>
+            </div>
+          </h1>
+             <Form onSubmit={handleFormSubmit}>
+                  <FormGroup>
+                    <Label for="name">  Nombre</Label>
+                    <Input
+                      type="text"
+                      name="name"
+                      id="name"
+                      placeholder="Ingrese su nombre"
+                      value={formData.name}
+                      onChange={handleFormChange}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="rut">RUT</Label>
+                    <Input
+                      type="text"
+                      name="rut"
+                      id="rut"
+                      placeholder="Ingrese su RUT (sin puntos y con guión)"
+                      value={formData.rut}
+                      onChange={handleRutChange}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="age">Edad</Label>
+                    <Input
+                      type="number"
+                      name="age"
+                      id="age"
+                      placeholder="Ingrese su edad"
+                      value={formData.age}
+                      onChange={handleFormChange}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="email">Correo Electrónico</Label>
+                    <Input
+                      type="email"
+                      name="email"
+                      id="email"
+                      placeholder="Ingrese su correo electrónico"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="gender">Sexo</Label>
+                    <Input
+                      type="select"
+                      name="gender"
+                      id="gender"
+                      value={formData.gender}
+                      onChange={handleFormChange}
+                    >
+                      <option value="" disabled selected>Seleccione su sexo</option>
+                      <option value="M">Masculino</option>
+                      <option value="F">Femenino</option>
+                      <option value="O">Otro </option>
+                    </Input>
+                  </FormGroup>
+                 <div className="text-center">
+                   <Button className="my-4" color="primary" type="button" onClick={handleSubmit2}>
+                     {("Volver")}
+                   </Button>
+                   <Button className="my-4" color="primary" type="submit">
+                      {("Generar Orden Médica")}
+                    </Button>
+                 </div>
+               </Form>
+             </CardBody>
+           </Card>
+         </Col>
+       </Row>
+      )}
+
     </>
   );
 };
