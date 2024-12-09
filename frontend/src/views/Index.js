@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import jsPDF from "jspdf";
 // node.js library that concatenates classes (strings)
 import classnames from "classnames";
 // javascipt plugin for creating charts
@@ -8,6 +9,7 @@ import Chart from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
 // reactstrap components
 import axios from 'axios';
+import QRCode from 'qrcode';
 import {
   Button,
   Card,
@@ -115,7 +117,7 @@ const Index = (props) => {
       exams: ['YMC001', 'YMC002', 'YMC003', 'YMC004', 'YMC005', 'YMC006']
     }
   };
-   
+  
   const handleCheckboxChange = (event) => {
     const { id } = event.target;
     setSelectedCheckbox(id);
@@ -151,10 +153,11 @@ const Index = (props) => {
     if (rut.length > 1) {
       rut = rut.slice(0, -1) + '-' + rut.slice(-1);
     }
-
+    
     return rut;
   };
- 
+
+  
   const handleSubmit = (event) => {
     event.preventDefault();
     setShowForm(true);
@@ -165,36 +168,113 @@ const Index = (props) => {
   };
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    // Aquí puedes manejar el almacenamiento de la información del formulario
-    console.log('Información del formulario:', formData);
     
-    event.preventDefault();
     try {
       const response = await axios.post('http://127.0.0.1:8000/patient', formData);
       console.log('Paciente creado:', response.data);
       console.log(response.data._id);
-     
+
       const examResponse = await axios.post('http://127.0.0.1:8000/exam', {
         patient_id: response.data._id,
         ...examen
-        
       });
       console.log('Examen creado:', examResponse.data);
-      
-      // Aquí puedes manejar la respuesta, como mostrar un mensaje de éxito o redirigir al usuario
+
+      // Aquí es donde se genera y descarga el PDF
+      generatePDF(formData, examenes[selectedCheckbox]);
+
     } catch (error) {
       console.error('Error al crear el paciente:', error);
-      // Aquí puedes manejar el error, como mostrar un mensaje de error al usuario
     }
-    
   };
-
+  const generatePDF = (formData, selectedExam) => {
+    const doc = new jsPDF();
+  
+    // Establecer la fuente para los encabezados
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.text('YoMeControlont Orden Médica', 20, 20);
+  
+    // Agregar una línea para separar el encabezado
+    doc.setLineWidth(0.5);
+    doc.line(20, 25, 190, 25); // Línea horizontal
+  
+    // Cambiar la fuente para el contenido
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+  
+    // Nombre y datos del paciente
+    doc.text(`Nombre: ${formData.name}`, 20, 40);
+    doc.text(`RUT: ${formData.rut}`, 20, 50);
+    doc.text(`Edad: ${formData.age}`, 20, 60);
+    doc.text(`Correo: ${formData.email}`, 20, 70);
+    doc.text(`Sexo: ${formData.gender}`, 20, 80);
+  
+    // Título de Examen
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Examen Seleccionado:', 20, 100);
+  
+    // Línea separadora antes de los exámenes
+    doc.setLineWidth(0.5);
+    doc.line(20, 105, 190, 105); // Línea horizontal
+  
+    // Descripción del examen
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.text(`Nombre: ${selectedExam.nombre}`, 20, 110);
+    doc.text(`Descripción: ${selectedExam.descripcion}`, 20, 120);
+  
+    // Crear una tabla para los códigos de examen
+    const startY = 130;
+    doc.text('Códigos de Examen:', 20, startY);
+    
+    // Dibuja los códigos de los exámenes en una lista
+    const examsStartY = startY + 10;
+    selectedExam.exams.forEach((exam, index) => {
+      doc.text(`${index + 1}. ${exam}`, 20, examsStartY + (index * 10));
+    });
+  
+    // Generar QR con el enlace que incluye el RUT
+    const qrData = `http://localhost:3000/admin/verificador?rut=${formData.rut}`;
+    
+    QRCode.toDataURL(qrData)
+      .then(url => {
+        // Subir el QR un poco para centrarlo mejor
+        doc.addImage(url, 'PNG', 150, 60, 50, 50); // Ajusta la posición y tamaño del QR según sea necesario
+  
+        // Línea separadora después del QR
+        doc.setLineWidth(0.5);
+        doc.line(20, 160, 190, 160); // Línea horizontal
+  
+        // Agregar pie de página con información adicional
+        doc.setFontSize(10);
+        doc.text('Generado por: Sistema de Gestión Médica de YoMeControlo', 20, 270);
+  
+        // Línea separadora antes de la fecha de emisión
+        doc.setLineWidth(0.5);
+        doc.line(20, 275, 190, 275); // Línea horizontal
+  
+        // Fecha de emisión
+        doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString()}`, 20, 280);
+  
+        // Guardar el PDF
+        doc.save('orden_medica.pdf');
+      })
+      .catch(err => {
+        console.error('Error generando el QR', err);
+      });
+  };
+  
   if (window.Chart) {
     parseOptions(Chart, chartOptions());
   }
 
   const toggleNavs = (e, index) => {
     e.preventDefault();
+
+
+
 
   };
   return (
@@ -384,33 +464,33 @@ const Index = (props) => {
         )}
 
       {showForm && (
-         <Row className="mt-4 d-flex justify-content-center align-items-start">
-         <Col lg="3" md="5">
-           <Card className="bg-secondary shadow border-0 ">
-             <CardBody className="px-lg-5 py-lg-4">
-             <h1>
+        <Row className="mt-4 d-flex justify-content-center align-items-start">
+        <Col lg="3" md="5">
+          <Card className="bg-secondary shadow border-0 ">
+          <CardBody className="px-lg-5 py-lg-4">
+          <h1>
               <Badge color="primary" className="d-flex align-items-center justify-content-center">
                 <i className="ni ni-ambulance"></i>
                 <span className="ml-2">Generar Orden Médica</span>
               </Badge>
             </h1>
-             <h2><big>{examenes[selectedCheckbox].nombre}</big></h2>
-             <p>{examenes[selectedCheckbox].descripcion}</p>
-             </CardBody>
-           </Card>
-         </Col>
-         <Col lg="6" md="10">
-           <Card className="bg-secondary shadow border-0">
-             <CardBody className="px-lg-5 py-lg-4">
-             <h1>
-             <div className="d-flex justify-content-left py-lg-3">
+            <h2><big>{examenes[selectedCheckbox].nombre}</big></h2>
+            <p>{examenes[selectedCheckbox].descripcion}</p>
+            </CardBody>
+          </Card>
+        </Col>
+        <Col lg="6" md="10">
+          <Card className="bg-secondary shadow border-0">
+            <CardBody className="px-lg-5 py-lg-4">
+            <h1>
+            <div className="d-flex justify-content-left py-lg-3">
               <Badge color="primary" className="d-flex align-items-center justify-content-center">
                 <i className="ni ni-circle-08"></i>
                 <span className="ml-2 ">Datos del Paciente</span>
               </Badge>
             </div>
           </h1>
-             <Form onSubmit={handleFormSubmit}>
+            <Form onSubmit={handleFormSubmit}>
                   <FormGroup>
                     <Label for="name">  Nombre</Label>
                     <Input
@@ -470,19 +550,19 @@ const Index = (props) => {
                       <option value="O">Otro </option>
                     </Input>
                   </FormGroup>
-                 <div className="text-center">
-                   <Button className="my-4" color="primary" type="button" onClick={handleSubmit2}>
-                     {("Volver")}
-                   </Button>
-                   <Button className="my-4" color="primary" type="submit">
+                <div className="text-center">
+                  <Button className="my-4" color="primary" type="button" onClick={handleSubmit2}>
+                    {("Volver")}
+                  </Button>
+                  <Button className="my-4" color="primary" type="submit">
                       {("Generar Orden Médica")}
                     </Button>
-                 </div>
-               </Form>
-             </CardBody>
-           </Card>
-         </Col>
-       </Row>
+                </div>
+              </Form>
+            </CardBody>
+          </Card>
+        </Col>
+      </Row>
       )}
 
     </>

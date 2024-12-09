@@ -13,11 +13,12 @@ var routes = [
   },
 
   {
-    path: "/tables",
+    path: "/verificador",
     name: "Verificación de Recetas",
     icon: "ni ni-bullet-list-67 text-red",
     component: <Tables />,
     layout: "/admin",
   },
+  
 ];
 export default routes;

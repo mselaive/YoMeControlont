@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from bd import medic_collection, patient_collection, qr_code_collection, exam_collection  # Importa las colecciones de la base de datos
 from models import Patient, PatientCreate  # Importa el modelo Patie
 router = APIRouter()
+from bson import ObjectId
 
 @router.get("/getpatient/{patient_id}", response_model=Patient, tags=["patient"])
 async def read_patient(patient_id: str):
@@ -29,3 +30,16 @@ async def create_or_update_patient(patient: PatientCreate):
     if not result.acknowledged:
         raise HTTPException(status_code=500, detail="Failed to create patient")
     return new_patient
+
+# Función para buscar paciente por ID
+@router.get("/patientss/{patient_id}", response_model=Patient)
+async def searchID(patient_id: str):
+    # Busca al paciente en la base de datos por el campo 'patient_id'
+    patient = patient_collection.find_one({"patient_id": patient_id})
+    
+    # Si el paciente no existe, lanza un error 404
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    # Devuelve el paciente encontrado
+    return Patient(**patient) 

@@ -28,18 +28,17 @@ async def create_or_update_exam(exam: ExamCreate):
         raise HTTPException(status_code=500, detail="Failed to create exam")
     return new_exam
 
-@router.get("/getexam/{exam_id}", tags=["exam"], response_model=ExamResponse)
-async def get_exam_details(exam_id: str):
-    # Obtener el examen por ID
-    exam = exam_collection.find_one({"_id": exam_id})
-    if not exam:
-        raise HTTPException(status_code=404, detail="Exam not found")
-
-    # Obtener el paciente por ID
-    patient_id = exam.get("patient_id")
-    patient = patient_collection.find_one({"_id": patient_id})
+@router.get("/getexam/{rut}", tags=["exam"], response_model=ExamResponse)
+async def get_exam_details(rut: str):
+    # Obtener el paciente por RUT
+    patient = patient_collection.find_one({"rut": rut})
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
+
+    # Obtener el examen relacionado con el paciente
+    exam = exam_collection.find_one({"patient_id": patient["_id"]})
+    if not exam:
+        raise HTTPException(status_code=404, detail="Exam not found")
 
     # Formatear la respuesta
     response = ExamResponse(
